@@ -1,0 +1,65 @@
+[System]
+Name='fis_velocidade_P'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=27
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='erro'
+Range=[-30 30]
+NumMFs=3
+MF1='erro-1':'trapmf',[-30 -30 -29.8131789473339 6]
+MF2='erro-2':'trimf',[-6 0 6]
+MF3='erro-3':'trapmf',[-6 29.8131789473339 30 30]
+
+[Input2]
+Name='rate'
+Range=[-150 150]
+NumMFs=3
+MF1='rate-1':'trapmf',[-150 -150 -61.7293104539181 6.28832137569566]
+MF2='rate-2':'trimf',[-74.9307849693863 0 74.9307849693863]
+MF3='rate-3':'trapmf',[-6.28832137569566 61.7293104539181 150 150]
+
+[Output1]
+Name='saida_transitoria'
+Range=[-100 100]
+NumMFs=3
+MF1='saida_transitoria-1':'trimf',[-100 -60 -20]
+MF2='saida_transitoria-2':'trimf',[-43.4488306623356 0 43.4488306623356]
+MF3='saida_transitoria-3':'trimf',[20 60 100]
+
+[Rules]
+1 1, 1 (1) : 1
+1 1, 2 (0) : 1
+1 1, 3 (0) : 1
+1 2, 1 (1) : 1
+1 2, 2 (0) : 1
+1 2, 3 (0) : 1
+1 3, 1 (1) : 1
+1 3, 2 (0) : 1
+1 3, 3 (0) : 1
+2 1, 1 (0.240092302241207) : 1
+2 1, 2 (0.475444636886659) : 1
+2 1, 3 (0.240092302241207) : 1
+2 2, 1 (0) : 1
+2 2, 2 (1) : 1
+2 2, 3 (0) : 1
+2 3, 1 (0.240092302241207) : 1
+2 3, 2 (0.475444636886659) : 1
+2 3, 3 (0.240092302241207) : 1
+3 1, 1 (0) : 1
+3 1, 2 (0) : 1
+3 1, 3 (1) : 1
+3 2, 1 (0) : 1
+3 2, 2 (0) : 1
+3 2, 3 (1) : 1
+3 3, 1 (0) : 1
+3 3, 2 (0) : 1
+3 3, 3 (1) : 1
