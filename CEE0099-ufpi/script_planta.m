@@ -2,7 +2,7 @@ function [matriz_resultado, fis] = script_planta(fuzz, params)
 
 format shortg
 addpath(genpath('src'))
-global t y r e de u du up pwm k SerPIC
+global t y r e de u du up fir pwm k SerPIC
 
 n = params.n;
 T = params.T;
@@ -69,6 +69,8 @@ catch
     end
 end
 
+fir = zeros(n, size(showrule(fis), 1));
+
 %% LOOP DE CONTROLE
 for k = 3:n
     %LEITURA
@@ -87,7 +89,7 @@ for k = 3:n
     de(k) = max(min(de(k), limits.rate.max), limits.rate.min);
     
     %CONTROLE
-    du(k) = evalfis([e(k) de(k)], fis(1));
+    [du(k), ~, ~, ~, fir(k,:)] = evalfis([e(k) de(k)], fis(1));
     if length(fis) == 2
         up(k) = evalfis(r(k), fis(2));
     else

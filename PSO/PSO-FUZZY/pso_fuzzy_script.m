@@ -2,7 +2,7 @@ clc
 clear
 close all
 addpath(genpath('../../CEE0099-ufpi'));
-global t y r e de u du up pwm SerPIC
+global t y r e de u du up pwm fir SerPIC
 
 %% parâmetros do especialista fuzzy
 % utilizar dois fuzzy não funcionou bem... (melhor ignorar o erro de regime, e resolver via feedfoward)
@@ -129,9 +129,9 @@ kappa = 1;
 chi = 2*kappa/abs(2-phi - sqrt(phi^2 - 4*phi));
 
 %3, 50; 15, 4000
-params.plotar = 1;      %plotar entre cada interação?
-params.MaxIt = 2;        %Maximum Number of Iterations;
-params.nPop = 5;           %Swarm Size
+params.plotar = 0;      %plotar entre cada interação?
+params.MaxIt = 5;        %Maximum Number of Iterations;
+params.nPop = 10000;           %Swarm Size
 params.w = chi;               %Inercia Coefficient;
 params.wdamp = 0.5;        %Damping Ratio of Inertia Coefficient 
 params.c1 = chi*phi1;              %Personal Acceleration Coefficient;
@@ -139,12 +139,12 @@ params.c2 = chi*phi2;              %Social Accelleration Coefficient
 params.ShowIterInfo = true; %Show iteration flag
 
 %% tanque de nível vitim
-params.n = 43;
+params.n = 83;
 params.T = 1.0;
 z = tf('z', params.T, 'variable', 'z^-1');
 params.Gz = 0.08*z^-1/(1 - z^-1);
 params.sistema = 'nivel';
-params.referencia(1:params.n) = 6;
+params.referencia(1:params.n) = [6*ones(43, 1); zeros(40, 1)];
 params.K = Inf;
 params.D = -4;
 
@@ -182,7 +182,7 @@ params.D = -4;
 
 %% Calling PSO
 warning('off', 'fuzzy:general:warnEvalfis_NoRuleFired');
-problem.CostFunction = @(particula) objfunc(script_planta(particula, params), 'ITAE');
+problem.CostFunction = @(particula) objfunc(script_planta(particula, params), 'IAE');
 out = PSO(problem, params);
 BestSol= out.BestSol;
 BestCosts = out.BestCost; %3259.1
@@ -194,17 +194,31 @@ warning('on', 'fuzzy:general:warnEvalfis_NoRuleFired');
 figure
 params.plotar = 1;
 % params.n = 300;
+for i=1:params.n
+    if i<=params.n/4
+        params.referencia(i) = 20;
+    elseif i>params.n/4 && i<=params.n/2
+        params.referencia(i) = 40;
+    elseif i>params.n/2 && i<=params.n*3/4
+         params.referencia(i) = 20;
+    elseif i>params.n*3/4 && i<=params.n
+            params.referencia(i) = 30;
+    end
+end
+
+% params.n = 300;
 % for i=1:params.n
 %     if i<=params.n/4
-%         params.referencia(i) = 20;
+%         params.referencia(i) = 3;
 %     elseif i>params.n/4 && i<=params.n/2
-%         params.referencia(i) = 40;
+%         params.referencia(i) = 5;
 %     elseif i>params.n/2 && i<=params.n*3/4
-%          params.referencia(i) = 20;
+%          params.referencia(i) = 7;
 %     elseif i>params.n*3/4 && i<=params.n
-%             params.referencia(i) = 30;
+%             params.referencia(i) = 5;
 %     end
 % end
+
 if exist('fis', 'var')
     script_planta(fis, params);
 else
